@@ -64,8 +64,6 @@ clientAuth.on('data', (data) => {
             break;
     }
     return;
-    const managedPacket = opcodeManager.handle(opcode, pck);
-    packets.push({opcode: opcode, packet: managedPacket});
 });
 
 clientGame.on('data', (data) => {
@@ -74,6 +72,8 @@ clientGame.on('data', (data) => {
     const opcode = pck.getOpcode();
     const managedPacket = opcodeManager.handle(opcode, pck);
     packets.push({opcode: opcode, packet: managedPacket});
+    console.log("EMIT");
+    io.emit("new-packets", packets);
 })
 
 function gameServerAuthentication (ticket, token) {
@@ -87,6 +87,24 @@ function gameServerAuthentication (ticket, token) {
     });
 }
 
+function preparePacket (opcode, fields) {
+    // Pour le moment je fais un gros switch case
+    switch (opcode) {
+        case "CMSG_INVOKE_CHARACTER_IN_WORLD":
+            const characterUUIDField = fields.find((field) => {
+                return field.name === "character_uuid";
+            });
+            if (characterUUIDField === undefined) {
+                console.error("Impossible d'envoyer le packet CMSG_INVOKE_CHARACTER_IN_WORLD car character_uuid inconnu");
+                return null;
+            }
+            const packet = new Packet(0x12C);
+            packet.putInt(Number.parseInt(characterUUIDField.value, 10));
+            return packet;
+            break;
+    }
+    return null;
+}
 
 app.get('/', (req, res) => {
     res.send("Hello World");
@@ -95,6 +113,12 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
    console.log("Un utilisateur s'est connecté au serveur");
    // Quand le mec est connecté, on lui envoie tout le bordel
+    socket.on('send-packet', (packet) => {
+        const p = preparePacket(packet.opcode, packet.fields);
+        if (p !== null && p instanceof Packet) {
+            clientGame.write(p.toBuffer());
+        }
+    });
     socket.emit("new-packets", packets);
 });
 

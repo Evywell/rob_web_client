@@ -1,0 +1,7 @@
+.packet-list-item__content {
+    display: none;
+}
+
+.packet-list-item:hover .packet-list-item__content {
+    display: initial;
+}

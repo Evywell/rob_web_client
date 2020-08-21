@@ -32,6 +32,18 @@ export default class Packet {
         return (Buffer.from(value)).readIntBE(0, 4);
     }
 
+    readLong () {
+        const value = this.bufferData.slice(this.cursor, this.cursor + 8);
+        this.cursor += 8;
+        return ((Buffer.from(value)).readBigInt64BE(0));
+    }
+
+    readFloat () {
+        const value = this.bufferData.slice(this.cursor, this.cursor + 4);
+        this.cursor += 4;
+        return (Buffer.from(value)).readFloatBE(0);
+    }
+
     readString () {
         const strLength = this.readInt();
         const value = this.bufferData.slice(this.cursor, this.cursor + strLength);
