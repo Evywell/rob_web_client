@@ -14,7 +14,7 @@ const clientAuth = new net.Socket();
 const clientGame = new net.Socket();
 const authHost = config.auth_host;
 const authPort = config.auth_port;
-const gamehost = config.game_host;
+const gameHost = config.game_host;
 const gamePort = config.game_port;
 
 var token;
@@ -77,7 +77,7 @@ clientGame.on('data', (data) => {
 })
 
 function gameServerAuthentication (ticket, token) {
-    clientGame.connect(gamePort, gamehost, () => {
+    clientGame.connect(gamePort, gameHost, () => {
         console.log("Connexion au serveur de jeu réussie");
         console.log("Authentification auprès du serveur de jeu en cours...");
         const authPacket = new Packet(0); // WORLD_AUTHENTICATION_CHALLENGE
@@ -89,6 +89,7 @@ function gameServerAuthentication (ticket, token) {
 
 function preparePacket (opcode, fields) {
     // Pour le moment je fais un gros switch case
+    let packet;
     switch (opcode) {
         case "CMSG_INVOKE_CHARACTER_IN_WORLD":
             const characterUUIDField = fields.find((field) => {
@@ -98,8 +99,17 @@ function preparePacket (opcode, fields) {
                 console.error("Impossible d'envoyer le packet CMSG_INVOKE_CHARACTER_IN_WORLD car character_uuid inconnu");
                 return null;
             }
-            const packet = new Packet(0x12C);
+            packet = new Packet(0x12C);
             packet.putInt(Number.parseInt(characterUUIDField.value, 10));
+            return packet;
+            break;
+        case "CMSG_INVOKE_CHARACTER_CLIENT_READY":
+            const clientLatency = fields.find((field) => {
+                return field.name === "client_time";
+            });
+            packet = new Packet(0x12E);
+            packet.putInt(0);
+            packet.putInt(Number.parseInt(clientLatency.value, 10));
             return packet;
             break;
     }

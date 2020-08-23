@@ -13,7 +13,7 @@ class Dashboard extends React.Component {
             packets: [],
             fields: [],
             currentOpcode: null
-        }
+        };
         this.templates = [
             {
                 name: "CMSG_INVOKE_CHARACTER_IN_WORLD",
@@ -25,8 +25,19 @@ class Dashboard extends React.Component {
                         value: ''
                     }
                 ]
+            },
+            {
+                name: "CMSG_INVOKE_CHARACTER_CLIENT_READY",
+                description: "Marquer le client comme prêt",
+                fields: [
+                    {
+                        name: "client_time",
+                        title: "Latence joueur",
+                        value: 0
+                    }
+                ]
             }
-        ]
+        ];
         this.handleChange = this.handleChange.bind(this);
         this.sendPacket = this.sendPacket.bind(this);
     }
@@ -74,7 +85,7 @@ class Dashboard extends React.Component {
         return (
             <div className="container-fluid">
                 <div className="row">
-                    <div className="col-md-9">
+                    <div className="col-md-8">
                         {
                             this.templates.map((template) => {
                                 return (
@@ -89,7 +100,7 @@ class Dashboard extends React.Component {
                         <PacketTemplate onFieldChange={this.handleChange} fields={this.state.fields} />
                         <button onClick={this.sendPacket}>Envoyer</button>
                     </div>
-                    <div className="col-md-3">
+                    <div className="col-md-4">
                         <ul className="list-group packet-list">
                             {packetList}
                         </ul>
