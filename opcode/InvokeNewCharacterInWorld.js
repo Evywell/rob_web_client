@@ -1,6 +1,6 @@
 import {getGameObjectWithLatency} from "./helpers/helpers.js";
 
-export default function InvokeCharacterInWorld (opcode, name, packet) {
+export default function InvokeNewCharacterInWorld (opcode, name, packet) {
     const go = getGameObjectWithLatency(packet);
     return {
         opcode,

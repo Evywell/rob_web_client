@@ -20,6 +20,13 @@ export default class Packet {
         this.bufferData = this.bufferData.concat([...b.reverse()]);
     }
 
+    putFloat (value) {
+        let farr = new Float32Array(1);
+        farr[0] = value;
+        let barr = new Int8Array(farr.buffer);
+        this.bufferData = this.bufferData.concat([...Buffer.from(barr.reverse())])
+    }
+
     putString (value) {
         const length = value.length;
         this.putInt(length);
@@ -49,6 +56,12 @@ export default class Packet {
         const value = this.bufferData.slice(this.cursor, this.cursor + strLength);
         this.cursor += strLength;
         return (Buffer.from(value)).toString();
+    }
+
+    readByte () {
+        const value = this.bufferData.slice(this.cursor, this.cursor + 1);
+        this.cursor += 1;
+        return value[0];
     }
 
     getOpcode () {

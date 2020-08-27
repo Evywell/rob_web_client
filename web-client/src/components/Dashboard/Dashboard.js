@@ -2,6 +2,7 @@ import React from 'react';
 import PacketTemplate from '../PacketTemplate/PacketTemplate'
 import socketIOClient from "socket.io-client";
 import './dashboard.css';
+import templates from '../../templates.js'
 const ENDPOINT = 'http://localhost:2222';
 
 class Dashboard extends React.Component {
@@ -14,30 +15,7 @@ class Dashboard extends React.Component {
             fields: [],
             currentOpcode: null
         };
-        this.templates = [
-            {
-                name: "CMSG_INVOKE_CHARACTER_IN_WORLD",
-                description: "Invoquer un personnage dans le monde",
-                fields: [
-                    {
-                        name: "character_uuid",
-                        title: "UUID du personnage",
-                        value: ''
-                    }
-                ]
-            },
-            {
-                name: "CMSG_INVOKE_CHARACTER_CLIENT_READY",
-                description: "Marquer le client comme prêt",
-                fields: [
-                    {
-                        name: "client_time",
-                        title: "Latence joueur",
-                        value: 0
-                    }
-                ]
-            }
-        ];
+        this.templates = templates;
         this.handleChange = this.handleChange.bind(this);
         this.sendPacket = this.sendPacket.bind(this);
     }
@@ -82,25 +60,36 @@ class Dashboard extends React.Component {
             )
         });
 
+        const sendBtn = this.state.fields.length > 0 ? <button className="btn btn-primary" onClick={this.sendPacket}>Envoyer</button> : '';
+
         return (
             <div className="container-fluid">
                 <div className="row">
-                    <div className="col-md-8">
-                        {
-                            this.templates.map((template) => {
-                                return (
-                                    <p key={template.name}>
-                                        <b>{template.name}</b><br/>
-                                        <button onClick={() => this.setState({ fields: template.fields, currentOpcode: template.name })}>{template.description}</button>
-                                    </p>
-                                )
-                            })
-                        }
-
-                        <PacketTemplate onFieldChange={this.handleChange} fields={this.state.fields} />
-                        <button onClick={this.sendPacket}>Envoyer</button>
+                    <div className="col-md-9" style={{marginTop: '25px'}}>
+                        <div className="row">
+                            <div className="col-md-8">
+                                <table className="table" style={{marginTop: '25px'}}>
+                                    <tbody>
+                                    {
+                                        this.templates.map((template) => {
+                                            return (
+                                                <tr key={template.name}>
+                                                    <td>{template.name}</td>
+                                                    <td><button className="btn btn-secondary" onClick={() => this.setState({ fields: template.fields, currentOpcode: template.name })}>{template.description}</button></td>
+                                                </tr>
+                                            )
+                                        })
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="col-md-4">
+                                <PacketTemplate name={this.state.currentOpcode} onFieldChange={this.handleChange} fields={this.state.fields} />
+                                {sendBtn}
+                            </div>
+                        </div>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-3">
                         <ul className="list-group packet-list">
                             {packetList}
                         </ul>

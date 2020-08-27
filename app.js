@@ -6,6 +6,7 @@ import Packet from './network/Packet.js';
 import {createServer} from 'http'
 import socketIO from 'socket.io';
 import OpcodeManager from "./network/OpcodeManager.js";
+import {getFieldByName} from "./opcode/helpers/helpers.js";
 
 const app = express();
 const http = createServer(app);
@@ -72,8 +73,8 @@ clientGame.on('data', (data) => {
     const opcode = pck.getOpcode();
     const managedPacket = opcodeManager.handle(opcode, pck);
     packets.push({opcode: opcode, packet: managedPacket});
-    console.log("EMIT");
     io.emit("new-packets", packets);
+    console.log("OPCODE reçu: " + opcode);
 })
 
 function gameServerAuthentication (ticket, token) {
@@ -91,10 +92,8 @@ function preparePacket (opcode, fields) {
     // Pour le moment je fais un gros switch case
     let packet;
     switch (opcode) {
-        case "CMSG_INVOKE_CHARACTER_IN_WORLD":
-            const characterUUIDField = fields.find((field) => {
-                return field.name === "character_uuid";
-            });
+        case "INVOKE_CHARACTER_IN_WORLD":
+            const characterUUIDField = getFieldByName(fields, "character_uuid");
             if (characterUUIDField === undefined) {
                 console.error("Impossible d'envoyer le packet CMSG_INVOKE_CHARACTER_IN_WORLD car character_uuid inconnu");
                 return null;
@@ -102,16 +101,27 @@ function preparePacket (opcode, fields) {
             packet = new Packet(0x12C);
             packet.putInt(Number.parseInt(characterUUIDField.value, 10));
             return packet;
-            break;
-        case "CMSG_INVOKE_CHARACTER_CLIENT_READY":
-            const clientLatency = fields.find((field) => {
-                return field.name === "client_time";
-            });
+        case "INVOKE_CHARACTER_CLIENT_READY":
+            const clientLatency = getFieldByName(fields, "client_time");
             packet = new Packet(0x12E);
             packet.putInt(0);
             packet.putInt(Number.parseInt(clientLatency.value, 10));
             return packet;
-            break;
+        case "MOVE_CHANGE":
+            const guid = getFieldByName(fields, "guid");
+            const posX = getFieldByName(fields, "pos_x");
+            const posY = getFieldByName(fields, "pos_y");
+            const posZ = getFieldByName(fields, "pos_z");
+            const orientation = getFieldByName(fields, "orientation");
+            const flags = getFieldByName(fields, "flags");
+            packet = new Packet(0x131);
+            packet.putInt(Number.parseInt(guid.value, 10));
+            packet.putFloat(Number.parseFloat(posX.value));
+            packet.putFloat(Number.parseFloat(posY.value));
+            packet.putFloat(Number.parseFloat(posZ.value));
+            packet.putFloat(Number.parseFloat(orientation.value));
+            packet.putInt(Number.parseInt(flags, 10));
+            return packet;
     }
     return null;
 }
