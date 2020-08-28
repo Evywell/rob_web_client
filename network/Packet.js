@@ -20,6 +20,11 @@ export default class Packet {
         this.bufferData = this.bufferData.concat([...b.reverse()]);
     }
 
+    putLong (value) {
+        this.putInt(0);
+        this.putInt(value);
+    }
+
     putFloat (value) {
         let farr = new Float32Array(1);
         farr[0] = value;

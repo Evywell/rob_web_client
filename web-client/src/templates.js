@@ -56,5 +56,21 @@ export default [
                 value: 0
             }
         ]
+    },
+    {
+        name: "CAST_SPELL",
+        description: "Lancer un sort",
+        fields: [
+            {
+                name: "spell_id",
+                title: "ID du sort",
+                value: 0
+            },
+            {
+                name: "target",
+                title: "GUID de la cible",
+                value: ''
+            }
+        ]
     }
 ];

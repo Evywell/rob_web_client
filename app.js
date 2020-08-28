@@ -122,6 +122,13 @@ function preparePacket (opcode, fields) {
             packet.putFloat(Number.parseFloat(orientation.value));
             packet.putInt(Number.parseInt(flags, 10));
             return packet;
+        case "CAST_SPELL":
+            const spellId = getFieldByName(fields, "spell_id");
+            const target = getFieldByName(fields, "target");
+            packet = new Packet(0x133);
+            packet.putInt(spellId.value);
+            packet.putLong(target.value);
+            return packet;
     }
     return null;
 }
