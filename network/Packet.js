@@ -21,8 +21,28 @@ export default class Packet {
     }
 
     putLong (value) {
-        this.putInt(0);
-        this.putInt(value);
+        let hex = BigInt(value).toString(16);
+        if (hex.length % 2) { hex = '0' + hex; }
+
+        const len = hex.length / 2;
+
+        const u8 = new Uint8Array(8);
+
+        const diff = 8 - len;
+
+        for (let a = 0; a < diff; a++) {
+            u8[a] = 0;
+        }
+
+        let i = diff;
+        let j = 0;
+        while (i < len + diff) {
+            u8[i] = parseInt(hex.slice(j, j+2), 16);
+            i += 1;
+            j += 2;
+        }
+
+        this.bufferData = this.bufferData.concat([...Buffer.from(u8)])
     }
 
     putFloat (value) {

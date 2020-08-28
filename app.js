@@ -143,6 +143,7 @@ io.on('connection', (socket) => {
     socket.on('send-packet', (packet) => {
         const p = preparePacket(packet.opcode, packet.fields);
         if (p !== null && p instanceof Packet) {
+            console.log("Envoi du packet " + packet.opcode);
             clientGame.write(p.toBuffer());
         }
     });
