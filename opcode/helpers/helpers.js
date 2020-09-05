@@ -13,6 +13,10 @@ export function getType (type) {
     }
 }
 
+export function isUnit (type) {
+    return ['UNIT', 'CREATURE', 'PLAYER'].indexOf(type) !== -1;
+}
+
 export function getGameObject (packet) {
     const guid = packet.readLong();
     const mapId = packet.readInt();
@@ -21,7 +25,8 @@ export function getGameObject (packet) {
     const posZ = packet.readFloat();
     const orientation = packet.readFloat();
     const type = getType(packet.readInt());
-    const name = ['UNIT', 'CREATURE', 'PLAYER'].indexOf(type) !== -1 ? packet.readString() : null;
+    const name = isUnit(type) ? packet.readString() : null;
+    const health = isUnit(type) ? packet.readInt() : null;
 
     return {
         guid,
@@ -31,7 +36,8 @@ export function getGameObject (packet) {
         posZ,
         orientation,
         type,
-        name
+        name,
+        health
     }
 }
 

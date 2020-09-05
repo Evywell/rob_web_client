@@ -18,6 +18,7 @@ export default function UpdateObject (opcode, name, packet) {
             <li><b>ORIENTATION:</b> ${go.orientation}</li>
             <li><b>TYPE:</b> ${go.type}</li>
             ${go.name !== null ? '<li><b>NAME:</b> ' + go.name + '</li>' : ''}
+            ${go.health !== null ? '<li><b>HEALTH:</b> ' + go.health + '</li>' : ''}
         `;
     }
     return {
